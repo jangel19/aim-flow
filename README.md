@@ -4,7 +4,7 @@ Free, open-source, fully local speech-to-text for macOS — no cloud, no API key
 
 AIM Flow lives in your menu bar. Press a hotkey, speak, and the transcribed text is automatically pasted into whatever field you were typing in.
 
-Created by Jordi Lopez for the [Artificial Intelligence Multidisciplinary Society (AIMS)](https://github.com/jangel19).
+Created by Jordi Lopez for the [Artificial Intelligence Multidisciplinary Society (AIM)](https://github.com/AIM-UML/aim-flow).
 
 ---
 
