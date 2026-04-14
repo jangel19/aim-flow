@@ -5,8 +5,8 @@ from __future__ import annotations
 # Maps wake word (lowercase) → service key
 _WAKE_WORDS: dict[str, str] = {
     "hey claude": "claude",
-    "hey chat": "chatgpt",
-    "hey grok": "grok",
+    "hey open": "chatgpt",
+    "hey x": "grok",
     "hey google": "gemini",
 }
 

@@ -130,8 +130,8 @@ Start your recording with a wake word and AIM Flow will open the corresponding A
 | Say... | Opens |
 |---|---|
 | `Hey Claude, [your question]` | Claude |
-| `Hey Chat, [your question]` | ChatGPT |
-| `Hey Grok, [your question]` | Grok |
+| `Hey Open, [your question]` | ChatGPT |
+| `Hey X, [your question]` | Grok |
 | `Hey Google, [your question]` | Gemini |
 
 Your question is copied to the clipboard automatically — just paste if the service doesn't pre-fill it. Without a wake word, text pastes normally.
