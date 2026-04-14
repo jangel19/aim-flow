@@ -47,24 +47,31 @@ _SERVICE_URLS: dict[str, str] = {
 def open_ai_service(service: str, query: str) -> None:
     """Open an AI service in the default browser.
 
-    The query is copied to the clipboard so the user can paste it if the
-    service does not support a URL query parameter.
+    For Claude, the query is passed as a URL parameter.
+    For all other services, the browser is opened and the query is
+    auto-pasted after a short delay once the page has loaded.
 
     Args:
         service: One of 'claude', 'chatgpt', 'grok', 'gemini'.
         query: The text to send. May be empty.
     """
+    import threading
     import webbrowser
     from urllib.parse import quote
 
     base_url = _SERVICE_URLS.get(service, "https://claude.ai/new")
 
-    if query:
-        copy_to_clipboard(query)
-
     if service == "claude" and query:
         webbrowser.open(f"{base_url}?q={quote(query)}")
     else:
         webbrowser.open(base_url)
+        if query:
+            copy_to_clipboard(query)
+
+            def _delayed_paste() -> None:
+                time.sleep(3.5)
+                paste_active_field()
+
+            threading.Thread(target=_delayed_paste, daemon=True).start()
 
     logger.debug("Opened %s with query (%d chars)", service, len(query))
