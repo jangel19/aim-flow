@@ -1,0 +1,6 @@
+openai-whisper
+numpy
+PyAudio
+rumps
+pynput
+pyobjc-framework-Cocoa

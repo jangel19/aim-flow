@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="AIM Flow idle icon">
+  <rect width="128" height="128" rx="24" fill="#111111"/>
+  <path d="M64 18a24 24 0 0 1 24 24v20a24 24 0 0 1-48 0V42a24 24 0 0 1 24-24Z" fill="#f7f7f2"/>
+  <path d="M34 56a4 4 0 0 1 4 4c0 14.36 11.64 26 26 26s26-11.64 26-26a4 4 0 0 1 8 0c0 16.89-12.55 30.84-28.83 33.04V106h14.83a4 4 0 0 1 0 8H44a4 4 0 0 1 0-8h17.17V93.04C44.55 90.84 32 76.89 32 60a4 4 0 0 1 4-4Z" fill="#f7f7f2"/>
+</svg>
