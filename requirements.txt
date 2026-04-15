@@ -1,9 +1,16 @@
+# Core dependencies (all platforms)
 openai-whisper
 numpy
 PyAudio
-rumps
 pynput
-pyobjc-framework-Cocoa
+pyperclip
 requests>=2.31.0
 reportlab>=4.2.5
-reportlab>=4.2.5
+
+# macOS-only dependencies
+rumps; sys_platform == 'darwin'
+pyobjc-framework-Cocoa; sys_platform == 'darwin'
+
+# Windows-only dependencies
+pystray>=0.19.0; sys_platform == 'win32'
+Pillow>=10.0.0; sys_platform == 'win32'

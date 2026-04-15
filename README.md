@@ -1,18 +1,31 @@
 # AIM Flow
 
-Free, open-source, fully local speech-to-text for macOS — no cloud, no API keys, no subscription.
+Free, open-source, fully local speech-to-text for macOS, Windows, and Linux — no cloud, no API keys, no subscription.
 
-AIM Flow lives in your menu bar. Press a hotkey, speak, and the transcribed text is automatically pasted into whatever field you were typing in.
+AIM Flow lives in your menu bar (macOS/Linux) or system tray (Windows). Press a hotkey, speak, and the transcribed text is automatically pasted into whatever field you were typing in.
 
 Created by Jordi Lopez for the [Artificial Intelligence Multidisciplinary Society (AIMS)](https://github.com/jangel19).
 
 ---
 
+## Platform Support
+
+| Feature | macOS | Windows | Linux |
+|---------|-------|---------|-------|
+| Dictation (voice-to-text) | ✅ | ✅ | ✅ |
+| Auto-paste into active window | ✅ | ✅ | ✅ |
+| Wake-word routing (Claude/ChatGPT/Grok/Gemini) | ✅ | ✅ | ✅ |
+| Meeting summarizer (Ollama) | ✅ | ❌ | ✅ |
+| Menu bar UI | ✅ | ❌ (System tray) | ✅ |
+| Local Whisper transcription | ✅ | ✅ | ✅ |
+
+---
+
 ## How it works
 
-1. The AIMS "A" logo sits in your menu bar.
-2. Press `Option+Command` to start recording — the logo shows a live waveform.
-3. Press `Option+Command` again to stop.
+1. The AIMS "A" logo sits in your menu bar (macOS/Linux) or system tray (Windows).
+2. Press the hotkey to start recording — the logo shows a live waveform (macOS only).
+3. Press the hotkey again to stop.
 4. Whisper transcribes your audio locally on your machine with the `base` model by default.
 5. The text is automatically pasted into the active field.
 
@@ -27,7 +40,20 @@ The app applies lightweight voice-focused cleanup before transcription to reduce
 - Python 3.11 or 3.12 (3.12 recommended)
 - [Homebrew](https://brew.sh)
 
+### Windows
+- Windows 10 or later
+- Python 3.9 or 3.12
+- ffmpeg (download and add to PATH)
+
+### Linux
+- Python 3.9 or later
+- ffmpeg (`sudo apt install ffmpeg`)
+
+---
+
 ## Installation
+
+### macOS
 
 #### Step 1 — Clone and install
 
@@ -75,21 +101,131 @@ Open **System Settings → Privacy & Security** and enable the following for **A
 
 > Tip: If AIM Flow does not appear in the Accessibility or Input Monitoring list, try using the hotkey or the "Toggle Recording" menu item once — macOS will add it to the list automatically.
 
+### Windows
+
+#### Prerequisites
+
+1. **Install Python 3.9+** from [python.org](https://www.python.org/downloads/)
+   - ✅ Check "Add python.exe to PATH" during installation
+   - ✅ Choose "Install for all users" (recommended)
+
+2. **Install ffmpeg**
+   - Download from [ffmpeg.org/download.html](https://ffmpeg.org/download.html)
+   - Extract to `C:\ffmpeg`
+   - Add `C:\ffmpeg\bin` to your system PATH:
+     1. Open **System Properties** (Win+Pause or Settings → About → Advanced system settings)
+     2. Click **Environment Variables**
+     3. Under "System variables", click **Path** → Edit
+     4. Click **New** and add: `C:\ffmpeg\bin`
+     5. Click OK and restart your terminal
+
+#### Installation Steps
+
+1. **Clone the repository**
+   ```cmd
+   git clone https://github.com/jangel19/aim-flow.git
+   cd aim-flow
+   ```
+
+2. **Run the installer**
+   ```cmd
+   install_windows.bat
+   ```
+   
+   This will:
+   - Create a Python virtual environment
+   - Install all dependencies (Whisper, pynput, pystray, etc.)
+   - Check for ffmpeg
+
+3. **Done!** The installer will show how to run AIM Flow.
+
+#### Troubleshooting Windows Installation
+
+**"Python not found"**
+- Reinstall Python from python.org with "Add python.exe to PATH" checked
+- Restart your terminal after installation
+
+**"ffmpeg not found"**
+- Download from ffmpeg.org/download.html
+- Extract to C:\ffmpeg
+- Add C:\ffmpeg\bin to system PATH
+- Restart your terminal
+
+**"PyAudio installation failed"**
+- Option 1: Install from pre-built wheel:
+  ```cmd
+  pip install https://files.pythonhosted.org/packages/PyAudio/PyAudio-0.2.13-cp311-cp311-win_amd64.whl
+  ```
+- Option 2: Use a different Python version (3.9 or 3.10)
+
 ---
 
 ## Usage
+
+### macOS
 
 | Action | How |
 |---|---|
 | Start recording | `Option+Command` |
 | Stop recording and paste | `Option+Command` again |
 | Toggle via menu | Click the A logo → Toggle Recording |
+| Start meeting recording | Click the A logo → Start Meeting Recording |
+| Stop meeting recording | Click the A logo → Stop Meeting Recording |
+| View meeting history | Click the A logo → View Meeting History |
 | Quit | Click the A logo → Quit |
 
-The Whisper model (`base`) is downloaded automatically on first use (~140 MB). Subsequent runs load it from cache.
-Set `AIM_FLOW_MODEL=base`, `small`, `medium`, `large`, or `turbo` before launch if you want a different tradeoff.
+### Windows
 
-### AI Assistant Integration
+| Action | How |
+|---|---|
+| Start recording | `Ctrl+Alt+Space` |
+| Stop recording and paste | `Ctrl+Alt+Space` again |
+| Toggle via system tray | Right-click tray icon → Toggle Recording |
+| View last transcript | Right-click tray icon → Last Transcript |
+| Quit | Right-click tray icon → Exit |
+
+### Linux
+
+| Action | How |
+|---|---|
+| Start recording | `Ctrl+Shift+Space` |
+| Stop recording and paste | `Ctrl+Shift+Space` again |
+| Toggle via menu | Click the A logo → Toggle Recording |
+| Start meeting recording | Click the A logo → Start Meeting Recording |
+| Stop meeting recording | Click the A logo → Stop Meeting Recording |
+| Quit | Click the A logo → Quit |
+
+---
+
+## Whisper Model Selection
+
+The Whisper model (`base`) is downloaded automatically on first use (~140 MB). Subsequent runs load it from cache.
+
+To use a different model, set the environment variable before launching:
+
+**macOS/Linux:**
+```bash
+export AIM_FLOW_MODEL=small  # or: base, medium, large, turbo
+./run.sh
+```
+
+**Windows:**
+```cmd
+set AIM_FLOW_MODEL=small
+python -m aim_flow
+```
+
+Available models (by size and accuracy):
+- `tiny` — Smallest, fastest (39 MB)
+- `base` — Default (140 MB) ⭐
+- `small` — Better accuracy (466 MB)
+- `medium` — High accuracy (1.5 GB)
+- `large` — Highest accuracy (2.9 GB)
+- `turbo` — Latest model (809 MB)
+
+---
+
+## AI Assistant Integration
 
 Start your recording with a wake word and AIM Flow will open the corresponding AI service in your browser instead of pasting text.
 
@@ -102,7 +238,9 @@ Start your recording with a wake word and AIM Flow will open the corresponding A
 
 Your question is copied to the clipboard automatically — just paste if the service doesn't pre-fill it. Without a wake word, text pastes normally.
 
-## Meeting Summarizer (macOS Only)
+---
+
+## Meeting Summarizer (macOS and Linux only)
 
 AIM Flow can record long-form meetings and generate structured summaries using local AI.
 
@@ -140,70 +278,131 @@ Summaries are saved to `~/Documents/AIM_Flow_Meetings/` with:
 ```
 Grant Accessibility and Input Monitoring to **Terminal** (or whichever terminal app you use) instead of AIM Flow.
 
+**Windows**
+```cmd
+venv\Scripts\activate
+python -m aim_flow
+```
+
+**Linux**
+```bash
+./run.sh
+```
+
 ---
 
 ## Auto-start on login
 
 **macOS** — **System Settings → General → Login Items → +** and add `/Applications/AIM Flow.app`.
 
+**Windows** — Add `python -m aim_flow` to Windows Startup folder (`C:\Users\YourUsername\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`) or create a shortcut there.
+
+---
+
 ## Tech stack
 
+**Cross-platform**
 - [openai-whisper](https://github.com/openai/whisper) — local speech recognition
 - [PyAudio](https://people.csail.mit.edu/hubert/pyaudio/) — microphone capture
 - [pynput](https://github.com/moses-palmer/pynput) — global hotkey and paste
+- [pyperclip](https://github.com/asweigart/pyperclip) — clipboard access
 
 **macOS only**
 - [rumps](https://github.com/jaredks/rumps) — menu bar framework
 - [pyobjc](https://pyobjc.readthedocs.io) — AppKit image rendering
 - [PyInstaller](https://pyinstaller.org) — .app bundle packaging
 
+**Windows only**
+- [pystray](https://github.com/moses-palmer/pystray) — system tray framework
+- [Pillow](https://github.com/python-pillow/Pillow) — icon rendering
+
 ## Troubleshooting
 
-### Hotkey does nothing
+### macOS: Hotkey does nothing
 
 1. Go to **System Settings → Privacy & Security → Accessibility** and confirm AIM Flow is toggled ON.
 2. Go to **System Settings → Privacy & Security → Input Monitoring** and confirm AIM Flow is toggled ON.
 3. Quit and relaunch AIM Flow after changing permissions.
 4. If you just reinstalled the app, macOS revokes permissions on replacement — re-grant them.
 
-### Text is transcribed but not pasted
+### macOS: Text is transcribed but not pasted
 
 Same fix as above — Accessibility permission is required for the paste keystroke. Make sure it is enabled and that you restarted AIM Flow after enabling it.
 
-### Multiple A icons appear in the menu bar
+### macOS: Multiple A icons appear in the menu bar
 
 Only one instance of AIM Flow can run at a time. If you see duplicates, quit all of them (click each → Quit) and relaunch once. This is prevented automatically in newer versions.
 
-### "ffmpeg not found" error
+### Windows: Hotkey not working
+
+**Ctrl+Alt+Space** might conflict with another application. Check:
+- Windows settings for global hotkeys
+- Other installed applications
+- Try running as Administrator if conflicts persist
+
+### Windows: Text pastes as garbage
+
+- Check that your text input field supports clipboard pasting (Ctrl+V)
+- Some applications (games, legacy software) may not support clipboard paste
+- Try pasting manually (Ctrl+V) to test clipboard
+
+### Windows: System tray icon missing
+
+- Check if AIM Flow is actually running (open Task Manager → Processes)
+- Try restarting Windows
+- Try running as Administrator
+
+### Windows: pystray install fails
+
+If you see errors about pystray:
+```cmd
+pip install --upgrade pystray pillow
+```
+
+Then restart your terminal and try again.
+
+### All platforms: "ffmpeg not found" error
 
 **macOS**
 ```bash
 brew install ffmpeg
 ```
 
+**Windows**
+- Download from [ffmpeg.org/download.html](https://ffmpeg.org/download.html)
+- Extract to `C:\ffmpeg`
+- Add `C:\ffmpeg\bin` to system PATH
+- Restart terminal
+
 **Linux**
 ```bash
 sudo apt-get install ffmpeg
 ```
 
-### Microphone access denied
+### All platforms: Microphone access denied
 
-**System Settings → Privacy & Security → Microphone** → enable AIM Flow.
+**macOS** — **System Settings → Privacy & Security → Microphone** → enable AIM Flow.
 
-### Whisper model download is slow
+**Windows** — Settings → Privacy & security → Microphone → enable AIM Flow.
+
+**Linux** — Grant microphone access to PulseAudio or ALSA.
+
+### All platforms: Whisper model download is slow
 
 The first run downloads the `base` Whisper model (~140 MB). This only happens once. Subsequent launches are instant.
 
-### Permissions were granted but still not working after reinstall
+### macOS: Permissions were granted but still not working after reinstall
 
 macOS ties permissions to the specific app binary. Every time you replace the `.app`, you need to re-grant Accessibility and Input Monitoring. Go to System Settings, remove the old AIM Flow entry if present, relaunch the app, and re-add it.
 
 ### Python version issues
 
-**macOS** — Use Python 3.12:
+**macOS**
 ```bash
 brew install python@3.12
 ```
+
+**Windows** — Reinstall Python from python.org with "Add python.exe to PATH" checked.
 
 ## Project layout
 

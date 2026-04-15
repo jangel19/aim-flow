@@ -1,8 +1,9 @@
-"""Global hotkey support via pynput."""
+"""Global hotkey support via pynput (cross-platform)."""
 
 from __future__ import annotations
 
 import logging
+import sys
 import time
 from typing import Callable
 
@@ -19,6 +20,9 @@ class HotkeyManager:
         self._listener: keyboard.Listener | keyboard.GlobalHotKeys | None = None
         self._option_pressed = False
         self._command_pressed = False
+        self._control_pressed = False
+        self._alt_pressed = False
+        self._space_pressed = False
         self._combo_active = False
         self._last_triggered_at = 0.0
 
@@ -43,6 +47,15 @@ class HotkeyManager:
     def _is_command_key(self, key) -> bool:
         return key in {keyboard.Key.cmd, keyboard.Key.cmd_r}
 
+    def _is_control_key(self, key) -> bool:
+        return key in {keyboard.Key.ctrl, keyboard.Key.ctrl_r}
+
+    def _is_space_key(self, key) -> bool:
+        try:
+            return key == keyboard.Key.space
+        except Exception:
+            return False
+
     def _trigger_once(self) -> None:
         now = time.monotonic()
         if now - self._last_triggered_at < 0.2:
@@ -56,8 +69,31 @@ class HotkeyManager:
             self._option_pressed = True
         elif self._is_command_key(key):
             self._command_pressed = True
+        elif self._is_control_key(key):
+            self._control_pressed = True
+        elif self._is_alt_key(key):
+            self._alt_pressed = True
+        elif self._is_space_key(key):
+            self._space_pressed = True
 
-        if self._option_pressed and self._command_pressed and not self._combo_active:
+        # macOS: Option+Command
+        if (
+            config.IS_MACOS
+            and self._option_pressed
+            and self._command_pressed
+            and not self._combo_active
+        ):
+            self._combo_active = True
+            self._trigger_once()
+
+        # Windows: Ctrl+Alt+Space
+        if (
+            sys.platform == "win32"
+            and self._control_pressed
+            and self._alt_pressed
+            and self._space_pressed
+            and not self._combo_active
+        ):
             self._combo_active = True
             self._trigger_once()
 
@@ -67,32 +103,55 @@ class HotkeyManager:
             self._option_pressed = False
         elif self._is_command_key(key):
             self._command_pressed = False
+        elif self._is_control_key(key):
+            self._control_pressed = False
+        elif self._is_alt_key(key):
+            self._alt_pressed = False
+        elif self._is_space_key(key):
+            self._space_pressed = False
 
-        if not (self._option_pressed and self._command_pressed):
+        # Reset combo when any key is released
+        if not (
+            (self._option_pressed and self._command_pressed)
+            or (self._control_pressed and self._alt_pressed and self._space_pressed)
+        ):
             self._combo_active = False
+
+    def _is_alt_key(self, key) -> bool:
+        return key in {keyboard.Key.alt, keyboard.Key.alt_r}
 
     def start(self) -> None:
         try:
             if config.IS_MACOS:
+                # macOS: Use custom listener for Option+Command
                 self._listener = keyboard.Listener(
                     on_press=self._on_press,
                     on_release=self._on_release,
                 )
+                logger.info(
+                    "Hotkey listener started (Option+Command). "
+                    "If the hotkey does not respond, grant Accessibility and "
+                    "Input Monitoring permissions in System Settings, then restart."
+                )
+            elif sys.platform == "win32":
+                # Windows: Use custom listener for Ctrl+Alt+Space
+                self._listener = keyboard.Listener(
+                    on_press=self._on_press,
+                    on_release=self._on_release,
+                )
+                logger.info("Hotkey listener started (Ctrl+Alt+Space)")
             else:
+                # Linux: Use GlobalHotKeys
                 self._listener = keyboard.GlobalHotKeys(
                     {config.PYNPUT_HOTKEY: self._on_hotkey}
                 )
+                logger.info(f"Hotkey listener started ({config.DEFAULT_HOTKEY})")
+
             self._listener.start()
-            logger.info(
-                "Hotkey listener started (%s). "
-                "If the hotkey does not respond, grant Accessibility and "
-                "Input Monitoring permissions in System Settings, then restart.",
-                config.DEFAULT_HOTKEY,
-            )
         except Exception as exc:
             logger.error(
                 "Failed to start hotkey listener: %s. "
-                "Check Accessibility permissions in System Settings.",
+                "Check permissions and try again.",
                 exc,
             )
 
@@ -100,5 +159,6 @@ class HotkeyManager:
         try:
             if self._listener is not None:
                 self._listener.stop()
+                logger.info("Hotkey listener stopped")
         except Exception as exc:
             logger.warning("Error stopping hotkey listener: %s", exc)

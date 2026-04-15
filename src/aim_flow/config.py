@@ -1,6 +1,7 @@
 """Application configuration."""
 
 import os
+import sys
 from pathlib import Path
 import platform
 
@@ -26,6 +27,9 @@ def resource_path(name: str) -> Path:
     return PROJECT_ROOT / name
 
 IS_MACOS = platform.system() == "Darwin"
+IS_WINDOWS = platform.system() == "Windows"
+IS_LINUX = platform.system() == "Linux"
+
 MODEL_SIZE = os.environ.get("AIM_FLOW_MODEL", "base")
 
 SAMPLE_RATE = 16000
@@ -39,8 +43,16 @@ VOICE_TARGET_PEAK = 0.92
 SILENCE_TRIM_THRESHOLD = 0.012
 SILENCE_TRIM_MARGIN_MS = 180
 
-DEFAULT_HOTKEY = "Option+Command" if IS_MACOS else "Ctrl+Shift+Space"
-PYNPUT_HOTKEY = "<ctrl>+<shift>+<space>"
+# Platform-specific hotkeys
+if IS_MACOS:
+    DEFAULT_HOTKEY = "Option+Command"
+    PYNPUT_HOTKEY = "<alt>+<cmd>"
+elif IS_WINDOWS:
+    DEFAULT_HOTKEY = "Ctrl+Alt+Space"
+    PYNPUT_HOTKEY = "<ctrl>+<alt>+<space>"
+else:  # Linux
+    DEFAULT_HOTKEY = "Ctrl+Shift+Space"
+    PYNPUT_HOTKEY = "<ctrl>+<shift>+<space>"
 
 TRANSCRIPTION_LANGUAGE = None
 
